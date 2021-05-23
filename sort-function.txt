@@ -1,0 +1,83 @@
+public int Compare(string A, string B)
+{
+    const string currentNamespace = "PhotoGallery";
+
+    string GetNameSpace(string line)
+    {
+        line = line.Trim(';');
+
+        if (line.StartsWith("using"))
+        {
+            var index = line.IndexOf(' ');
+
+            if (index == -1 || line.Length <= index + 1)
+            {
+                return null;
+            }
+
+            return line.Substring(index + 1);
+        }
+
+        return null;
+    }
+
+    string GetRootNameSpace(string fullNameSpace)
+    {
+        var index = fullNameSpace.IndexOf('.');
+
+        if (index == -1)
+        {
+            return fullNameSpace;
+        }
+
+        return fullNameSpace.Substring(0, index);
+    }
+
+    int GetRootNameSpacePriority(string rootNameSpace)
+    {
+        switch (rootNameSpace)
+        {
+            case null:
+                return 0;
+            case "System":
+                return -3;
+            case "Microsoft":
+                return -2;
+            case currentNamespace:
+                return 1;
+            default:
+                return -1;
+        }
+    }
+
+    var nameSpaceA = GetNameSpace(A);
+    var nameSpaceB = GetNameSpace(B);
+
+    if (nameSpaceA == null && nameSpaceB == null)
+    {
+        return string.Compare(A, B);
+    }
+    if (nameSpaceA == null)
+    {
+        return 1;
+    }
+    if (nameSpaceB == null)
+    {
+        return -1;
+    }
+
+    var rootNameSpaceA = GetRootNameSpace(nameSpaceA);
+    var rootNameSpaceB = GetRootNameSpace(nameSpaceB);
+
+    var rootNameSpacePriorityA = GetRootNameSpacePriority(rootNameSpaceA);
+    var rootNameSpacePriorityB = GetRootNameSpacePriority(rootNameSpaceB);
+
+    var diff = rootNameSpacePriorityA - rootNameSpacePriorityB;
+
+    if (diff == 0)
+    {
+        return string.Compare(nameSpaceA, nameSpaceB);
+    }
+
+    return diff;
+} 
